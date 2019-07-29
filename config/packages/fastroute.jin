@@ -1,0 +1,72 @@
+[application]
+
+	;
+	; Aliases enable you to inform the dependency injector which concrete class should be built
+	; to provide for a type-hinted interface.  If the interface does not exist, a built in php
+	; class alias will be generated as an alias for the class.
+	;
+
+	aliases = {
+		"FastRoute\RouteParser": "FastRoute\RouteParser\Std",
+		"Fastroute\DataGenerator": "FastRoute\DataGenerator\GroupCountBased",
+		"FastRoute\Dispatcher": "FastRoute\Dispatcher\GroupCountBased",
+		"Hiraeth\Routing\Router": "Hiraeth\FastRoute\Router",
+		"Hiraeth\Routing\UrlGenerator": "Hiraeth\FastRoute\Router"
+	}
+
+	;
+	; Delegates are mini-factories for the dependency injector.  They provide all the information
+	; required to register with dependency injector as being capable of building a particular class
+	; and contain all the requisite logic for building that class, including any configuration
+	; settings logic.
+	;
+
+	delegates = [
+		"Hiraeth\FastRoute\RouterDelegate",
+		"Hiraeth\FastRoute\CollectorDelegate",
+		"Hiraeth\FastRoute\GCBDispatcherDelegate"
+	]
+
+	;
+	; Providers can be thought of as hooks which receive an object instance of a particular
+	; interface once it has been created by the dependecy injector.  From here, it can call the
+	; methods assured in that interface to conitnue configuring or setting up the instances.  Like
+	; delegates, providers contain all the requisite information inside the class, so they merely
+	; need to be registered.
+	;
+
+	providers = [
+
+	]
+
+[fastroute]
+
+	;
+	; Patterns are strings which map to regular expressions for use with fastroute.  You can define
+	; the pattern as the key and the regular expression it maps to as the value.
+	;
+
+	patterns = {
+		"!": ".+",
+		"#": "\\d+",
+		"+": "[1-9][0-9]*",
+		"m": "[a-z\\x7f-\\xff][a-z0-9-\\x7f-\\xff]*",
+		"c": "[a-z\\x7f-\\xff][a-z0-9-\\x7f-\\xff]*",
+	}
+
+	;
+	; Transformers are used to transform matching URL parameters between their URL form and their
+	; argument form.
+	;
+
+	transformers = {
+		"!": "Hiraeth\Journey\StringTransformer",
+		"m": "Hiraeth\Journey\MethodTransformer",
+		"c": "Hiraeth\Journey\ClassTransformer"
+	}
+
+[twig]
+
+	"globals": {
+		"url": "Hiraeth\Routing\UrlGenerator"
+	}

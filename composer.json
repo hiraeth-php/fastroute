@@ -1,0 +1,43 @@
+{
+    "name": "hiraeth/fastroute",
+    "description": "FastRoute integration for the Hiraeth Nano-Framework",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "license": "MIT",
+    "authors": [
+        {
+            "name":  "Matthew J. Sahagian",
+            "email": "matthew.sahagian@gmail.com",
+            "role":  "Lead Architect / Developer"
+        }
+    ],
+    "require": {
+        "hiraeth/app": "^2.0",
+        "hiraeth/routing": "^1.0",
+        "nikic/fast-route": "^1.3",
+        "doctrine/inflector": "^1.3"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.15",
+        "phpunit/phpunit": "^8.2",
+        "vimeo/psalm": "^3.4"
+    },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": [
+            "testing/support"
+        ]
+    },
+    "type": "opus-package",
+    "extra": {
+        "opus": {
+            "hiraeth/app": {
+                "config": ""
+            }
+        }
+    }
+}
