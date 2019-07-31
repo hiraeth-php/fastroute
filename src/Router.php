@@ -95,22 +95,22 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 		}
 
 		foreach ($params as $name => $value) {
-			if (!isset($mapping[$name])) {
-				$query[$name] = $value;
-				continue;
+			if (isset($mapping[$name])) {
+				$type = $mapping[$name];
+
+				if (isset($this->transformers[$type])) {
+					$value = $this->transformers[$type]->toUrl($name, $value, $params);
+				}
+
+				$location = str_replace(
+					$type ? '{' . $name . ':' . $type . '}' : '{' . $name . '}',
+					urlencode($value),
+					$location
+				);
+
+			} else {
+				$query[$name] = (string) $value;
 			}
-
-			$type = $mapping[$name];
-
-			if (isset($this->transformers[$type])) {
-				$value = $this->transformers[$type]->toUrl($name, $value, $params);
-			}
-
-			$location = str_replace(
-				$type ? '{' . $name . ':' . $type . '}' : '{' . $name . '}',
-				urlencode($value),
-				$location
-			);
 		}
 
 		return $location . (count($query) ? '?' . http_build_query($query) : NULL);
