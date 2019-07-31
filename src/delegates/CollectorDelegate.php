@@ -41,15 +41,17 @@ class CollectorDelegate implements Hiraeth\Delegate
 		);
 
 		foreach (array_keys($app->getConfig('*', 'fastroute', array())) as $collection) {
-			foreach ($app->get($collection, 'fastroute.patterns', array()) as $type => $pattern) {
+			$patterns = $app->getConfig($collection, 'fastroute.patterns', array());
+
+			foreach ($patterns as $type => $pattern) {
 				$collector->addPattern($type, $pattern);
 			}
 		}
 
 		foreach ($app->getConfig('*', 'routing', array()) as $collection => $config) {
-			$prefix = $config['prefix'] ?? '/';
+			$prefix = rtrim($config['prefix'] ?? '/', '/');
 
-			$collector->addGroup($config['prefix'] ?? '/', function($collector) use ($config) {
+			$collector->addGroup($prefix, function($collector) use ($config) {
 				foreach ($config['routes'] ?? array() as $route) {
 					$collector->addRoute($route['methods'], $route['route'], $route['target']);
 				}
