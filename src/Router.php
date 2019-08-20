@@ -140,11 +140,19 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 		if ($mask_url != $request->getURI()->getPath()) {
 			$target = $response->withStatus(301)->withHeader('Location', $mask_url);
 
-		} elseif ($result[0] == $this->dispatcher::NOT_FOUND) {
-			$target = $response->withStatus(404);
-
 		} elseif ($result[0] == $this->dispatcher::METHOD_NOT_ALLOWED) {
 			$target = $response->withHeader('Allowed', join(',', $result[1]))->withStatus(405);
+
+		} elseif ($result[0] == $this->dispatcher::NOT_FOUND) {
+			$alt_url = substr($url, -1) == '/'
+				? substr($url, 0, -1)
+				: $url . '/';
+
+			if ($this->dispatcher->dispatch($method, $alt_url)[0] != $this->dispatcher::NOT_FOUND) {
+				$target = $response->withStatus(301)->withHeader('Location', $alt_url);
+			} else {
+				$target = $response->withStatus(404);
+			}
 
 		} else {
 			$params  = $result[2];
@@ -164,3 +172,4 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 		return new Hiraeth\Routing\Route($target, $params);
 	}
 }
+
