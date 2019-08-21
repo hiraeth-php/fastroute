@@ -54,6 +54,13 @@ class Collector extends FastRoute\RouteCollector
 			$methods = static::$methods;
 		}
 
+		if (preg_match_all('/{([^:]+)}/', $route, $matches)) {
+			foreach ($matches[1] as $i => $token) {
+				$name    = $matches[1][$i];
+				$pattern = str_replace($token, '{' . $name . ':[^/]+}', $pattern);
+			}
+		}
+
 		if (preg_match_all('/{([^:]+):([^}]+)}/', $route, $matches)) {
 			$params = array_combine($matches[1], $matches[2]);
 
@@ -88,3 +95,4 @@ class Collector extends FastRoute\RouteCollector
 		return $this;
 	}
 }
+
