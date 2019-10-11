@@ -40,7 +40,9 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 				$value[$key] = static::filter($subvalue);
 			}
 
-			if (count(array_filter($value))) {
+			$value = array_filter($value);
+
+			if (count($value)) {
 				return $value;
 			}
 		}
