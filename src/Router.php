@@ -30,6 +30,27 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 	 */
 	protected $transformers = array();
 
+	/**
+	 *
+	 */
+	static protected function filter($value)
+	{
+		if (is_array($value)) {
+			foreach ($value as $key => $subvalue) {
+				$value[$key] = static::filter($subvalue);
+			}
+
+			if (count(array_filter($value))) {
+				return $value;
+			}
+		}
+
+		if (empty($value)) {
+			return NULL;
+		}
+
+		return (string) $value;
+	}
 
 	/**
 	 *
@@ -94,6 +115,8 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 			}
 		}
 
+
+
 		foreach ($params as $name => $value) {
 			if (isset($mapping[$name])) {
 				$type = $mapping[$name];
@@ -109,7 +132,7 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 				);
 
 			} else {
-				$query[$name] = !is_array($value) ? (string) $value : $value;
+				$query[$name] = static::filter($value);
 			}
 		}
 
