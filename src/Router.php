@@ -113,7 +113,10 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 			}
 		}
 
-		return $location . (count($query) ? '?' . http_build_query($query) : NULL);
+		return $location . (count($query)
+			? '?' . preg_replace('/%5B\d+\%5D=/', '%5B%5D=', http_build_query($query))
+			: NULL
+		);
 	}
 
 
