@@ -109,7 +109,7 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 				);
 
 			} else {
-				$query[$name] = (string) $value;
+				$query[$name] = !is_array($value) ? (string) $value : $value;
 			}
 		}
 
@@ -172,4 +172,3 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 		return new Hiraeth\Routing\Route($target, $params);
 	}
 }
-
