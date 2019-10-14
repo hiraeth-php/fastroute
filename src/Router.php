@@ -113,11 +113,13 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 
 		if ($provider) {
 			foreach ($mapping as $name => $type) {
+				if (isset($params[$name])) {
+					continue;
+				}
+
 				$params[$name] = $provider->getRouteParameter($name);
 			}
 		}
-
-
 
 		foreach ($params as $name => $value) {
 			if (isset($mapping[$name])) {
