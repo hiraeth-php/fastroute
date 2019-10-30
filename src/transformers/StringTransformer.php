@@ -40,7 +40,8 @@ class StringTransformer implements Transformer
 	{
 		$value = preg_replace_callback('#\b[A-Z]+\b#', [$this, 'acronymToTitle'], $value);
 		$value = str_replace('_', '-', $this->inflector->tableize($value));
-		$value = preg_replace('/[^A-Z^a-z^0-9^\/]+/', '-', $value);
+		$value = preg_replace('/[\/]/', '', $value);
+		$value = preg_replace('/[^A-Z^a-z^0-9]+/', '-', $value);
 		$value = preg_replace('/-+/', '-', $value);
 
 		return strtolower(trim($value, '-'));
@@ -55,4 +56,3 @@ class StringTransformer implements Transformer
 		return ucfirst(strtolower($results[0]));
 	}
 }
-
