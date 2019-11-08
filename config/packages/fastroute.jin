@@ -42,6 +42,16 @@
 [fastroute]
 
 	;
+	; Masks are simple find and replace strings for route generation.  Each key will be replaced
+	; with its corresponding value in a generated URL.
+	;
+
+	masks = {
+		"vol://public/": "/storage/"
+	}
+
+
+	;
 	; Patterns are strings which map to regular expressions for use with fastroute.  You can define
 	; the pattern as the key and the regular expression it maps to as the value.
 	;
