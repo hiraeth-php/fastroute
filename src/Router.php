@@ -33,30 +33,6 @@ class Router implements Hiraeth\Routing\Router
 	 */
 	protected $transformers = array();
 
-	/**
-	 *
-	 */
-	static protected function filter($value)
-	{
-		if (is_array($value)) {
-			foreach ($value as $key => $subvalue) {
-				$value[$key] = static::filter($subvalue);
-			}
-
-			$value = array_filter($value);
-
-			if (count($value)) {
-				return $value;
-			}
-		}
-
-		if (empty($value)) {
-			return NULL;
-		}
-
-		return (string) $value;
-	}
-
 
 	/**
 	 *
