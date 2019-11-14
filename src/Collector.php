@@ -26,6 +26,12 @@ class Collector extends FastRoute\RouteCollector
 	/**
 	 *
 	 */
+	protected $patterns = array();
+
+
+	/**
+	 *
+	 */
 	public function addPattern($type, $pattern): Collector
 	{
 		if (preg_match('#' . $pattern . '#', '') === FALSE) {
@@ -95,4 +101,3 @@ class Collector extends FastRoute\RouteCollector
 		return $this;
 	}
 }
-

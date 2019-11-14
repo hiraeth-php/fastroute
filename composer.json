@@ -11,6 +11,9 @@
             "role":  "Lead Architect / Developer"
         }
     ],
+    "provide": {
+        "hiraeth/routing-imp": "1.0.0"
+    },
     "require": {
         "hiraeth/app": "^2.0",
         "hiraeth/routing": "^1.0",
@@ -19,8 +22,8 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.15",
-        "phpunit/phpunit": "^8.2",
-        "vimeo/psalm": "^3.4"
+        "phpstan/phpstan": "^0.11.19",
+        "phpunit/phpunit": "^8.2"
     },
     "autoload": {
         "classmap": [

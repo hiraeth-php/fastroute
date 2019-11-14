@@ -4,6 +4,7 @@ namespace Hiraeth\FastRoute;
 
 use Hiraeth;
 use FastRoute;
+use RuntimeException;
 
 /**
  * Delegates are responsible for constructing dependencies for the dependency injector.
@@ -48,7 +49,7 @@ class GCBDispatcherDelegate implements Hiraeth\Delegate
 			if (!is_array($data)) {
 				throw new RuntimeException(sprintf(
 					'Invalid cache file, routing.cache in "%s" is corrupted, delete the file.',
-					$cache_dir
+					$cache_file
 				));
 			}
 

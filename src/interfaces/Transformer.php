@@ -2,6 +2,9 @@
 
 namespace Hiraeth\FastRoute;
 
+/**
+ *
+ */
 interface Transformer
 {
 	/**

@@ -2,16 +2,19 @@
 
 namespace Hiraeth\FastRoute;
 
-use Hiraeth;
 use FastRoute;
 use RuntimeException;
+
+use Hiraeth;
+use Hiraeth\Routing;
+
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
 /*
  *
  */
-class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGeneratorInterface
+class Router implements Hiraeth\Routing\Router
 {
 	/**
 	 *
@@ -54,6 +57,7 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 		return (string) $value;
 	}
 
+
 	/**
 	 *
 	 */
@@ -80,12 +84,12 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 	public function addTransformer($type, Transformer $transformer): Router
 	{
 		if (isset($this->transformers[$type])) {
-			throw new RuntimeException(
+			throw new RuntimeException(sprintf(
 				'Transformer %s is already registered.  Cannot register %s for type "%s"',
 				get_class($this->transformers[$type]),
 				get_class($transformer),
 				$type
-			);
+			));
 		}
 
 		$this->transformers[$type] = $transformer;
@@ -97,54 +101,18 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 	/**
 	 *
 	 */
-	public function anchor($location, array $params = array(), ?ParamProvider $provider = NULL): string
+	public function getMasks(): array
 	{
-		$query   = array();
-		$mapping = array();
-		$domain  = NULL;
+		return $this->masks;
+	}
 
-		foreach ($this->masks as $from => $to) {
-			$location = str_replace($from, $to, $location);
-		}
 
-		if (preg_match_all('/{([^:}]+)(?::([^}]+))?}/', $location, $matches)) {
-			$mapping = array_combine($matches[1], $matches[2]);
-		}
-
-		if ($provider) {
-			foreach ($mapping as $name => $type) {
-				if (isset($params[$name])) {
-					continue;
-				}
-
-				$params[$name] = $provider->getRouteParameter($name);
-			}
-		}
-
-		foreach ($params as $name => $value) {
-			if (isset($mapping[$name])) {
-				$type = $mapping[$name];
-
-				if (isset($this->transformers[$type])) {
-					$value = $this->transformers[$type]->toUrl($name, $value, $params);
-				}
-
-				$location = str_replace(
-					$type ? '{' . $name . ':' . $type . '}' : '{' . $name . '}',
-					urlencode($value),
-					$location
-				);
-
-			} else {
-				$query[$name] = static::filter($value);
-			}
-		}
-
-		if (count(array_filter($query))) {
-			$location .= '?' . preg_replace('/%5B\d+\%5D=/', '%5B%5D=', http_build_query($query));
-		}
-
-		return $location;
+	/**
+	 *
+	 */
+	public function getTransformers(): array
+	{
+		return $this->transformers;
 	}
 
 
@@ -155,29 +123,44 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 	{
 		$params = array();
 		$method = $request->getMethod();
-		$url    = str_replace(
+
+		//
+		// We get the internal URL by reversing our known masks.
+		//
+
+		$in_url = str_replace(
 			array_values($this->masks),
 			array_keys($this->masks),
 			$request->getURI()->getPath()
 		);
 
 		//
-		// If any masks are in play and the URL was translated, redirect to the canonical URL.
+		// We then re-mask the internal URL to determine what the final external URL should be
 		//
 
-		$mask_url = $this->anchor($url);
-		$result   = $this->dispatcher->dispatch($method, $url);
+		$ex_url = str_replace(
+			array_keys($this->masks),
+			array_values($this->masks),
+			$in_url
+		);
 
-		if ($mask_url != $request->getURI()->getPath()) {
-			$target = $response->withStatus(301)->withHeader('Location', $mask_url);
+		//
+		// See if we can get a result with the internal review, then decide how to respond
+		// based on everything we know.
+		//
+
+		$result = $this->dispatcher->dispatch($method, $in_url);
+
+		if ($ex_url != $request->getURI()->getPath()) {
+			$target = $response->withStatus(301)->withHeader('Location', $ex_url);
 
 		} elseif ($result[0] == $this->dispatcher::METHOD_NOT_ALLOWED) {
 			$target = $response->withHeader('Allowed', join(',', $result[1]))->withStatus(405);
 
 		} elseif ($result[0] == $this->dispatcher::NOT_FOUND) {
-			$alt_url = substr($url, -1) == '/'
-				? substr($url, 0, -1)
-				: $url . '/';
+			$alt_url = substr($in_url, -1) == '/'
+				? substr($in_url, 0, -1)
+				: $in_url . '/';
 
 			if ($this->dispatcher->dispatch($method, $alt_url)[0] != $this->dispatcher::NOT_FOUND) {
 				$target = $response->withStatus(301)->withHeader('Location', $alt_url);
@@ -200,6 +183,6 @@ class Router implements Hiraeth\Routing\RouterInterface, Hiraeth\Routing\UrlGene
 			}
 		}
 
-		return new Hiraeth\Routing\Route($target, $params);
+		return new Routing\Route($target, $params);
 	}
 }

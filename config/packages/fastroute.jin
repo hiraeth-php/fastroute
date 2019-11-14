@@ -7,11 +7,12 @@
 	;
 
 	aliases = {
+		"Hiraeth\Routing\Router": "Hiraeth\FastRoute\Router",
+		"Hiraeth\Routing\UrlGenerator": "Hiraeth\FastRoute\UrlGenerator",
+
 		"FastRoute\RouteParser": "FastRoute\RouteParser\Std",
 		"FastRoute\DataGenerator": "FastRoute\DataGenerator\GroupCountBased",
-		"FastRoute\Dispatcher": "FastRoute\Dispatcher\GroupCountBased",
-		"Hiraeth\Routing\RouterInterface": "Hiraeth\FastRoute\Router",
-		"Hiraeth\Routing\UrlGeneratorInterface": "Hiraeth\FastRoute\Router"
+		"FastRoute\Dispatcher": "FastRoute\Dispatcher\GroupCountBased"
 	}
 
 	;
@@ -47,7 +48,7 @@
 	;
 
 	masks = {
-		"vol://public/": "/storage/"
+
 	}
 
 
@@ -74,10 +75,4 @@
 		"!": "Hiraeth\FastRoute\StringTransformer",
 		"m": "Hiraeth\FastRoute\MethodTransformer",
 		"c": "Hiraeth\FastRoute\ClassTransformer"
-	}
-
-[twig]
-
-	globals = {
-		"route": "Hiraeth\Routing\UrlGeneratorInterface"
 	}
