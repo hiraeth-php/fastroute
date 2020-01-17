@@ -3,7 +3,7 @@
 namespace Hiraeth\FastRoute;
 
 use Hiraeth\Routing;
-
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
  *
@@ -32,7 +32,10 @@ class UrlGenerator implements Routing\UrlGenerator
 	{
 		$query   = array();
 		$mapping = array();
-		$domain  = NULL;
+
+		if ($location instanceof Request) {
+			return $this($location->getUri()->getPath(), $location->getQueryParams());
+		}
 
 		foreach ($this->router->getMasks() as $from => $to) {
 			$location = str_replace($from, $to, $location);
