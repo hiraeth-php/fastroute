@@ -37,6 +37,10 @@ class UrlGenerator implements Routing\UrlGenerator
 			return $this($location->getUri()->getPath(), $location->getQueryParams());
 		}
 
+		if ($location instanceof SplFileInfo) {
+			return $this($location->getPathName());
+		}
+
 		foreach ($this->router->getMasks() as $from => $to) {
 			$location = str_replace($from, $to, $location);
 		}
