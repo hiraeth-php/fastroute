@@ -149,7 +149,7 @@ class Router implements Hiraeth\Routing\Router
 			$target  = $result[1]['target'];
 
 			foreach ($params as $name => $value) {
-				$type = $result[1]['mapping'][$name];
+				$type = $result[1]['mapping'][$name] ?? NULL;
 
 				if (!isset($this->transformers[$type])) {
 					continue;
