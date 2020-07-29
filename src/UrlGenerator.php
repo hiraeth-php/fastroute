@@ -34,7 +34,7 @@ class UrlGenerator implements Routing\UrlGenerator
 		$mapping = array();
 
 		if ($location instanceof Request) {
-			return $this($location->getUri()->getPath(), $location->getQueryParams());
+			return $this($location->getUri()->getPath(), $params + $location->getQueryParams());
 		}
 
 		if ($location instanceof SplFileInfo) {
