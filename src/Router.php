@@ -99,26 +99,28 @@ class Router implements Hiraeth\Routing\Router
 	{
 		$params = array();
 		$method = $request->getMethod();
+		$in_url = $request->getURI()->getPath();
+		$ex_url = $in_url;
 
 		//
 		// We get the internal URL by reversing our known masks.
 		//
 
-		$in_url = str_replace(
-			array_values($this->masks),
-			array_keys($this->masks),
-			$request->getURI()->getPath()
-		);
+		foreach ($this->masks as $to => $from) {
+			if (strpos($in_url, $from) === 0) {
+				$ex_url = $in_url = substr_replace($in_url, $to, 0, strlen($from));
+			}
+		}
 
 		//
 		// We then re-mask the internal URL to determine what the final external URL should be
 		//
 
-		$ex_url = str_replace(
-			array_keys($this->masks),
-			array_values($this->masks),
-			$in_url
-		);
+		foreach ($this->masks as $from => $to) {
+			if (strpos($ex_url, $from) === 0) {
+				$ex_url = substr_replace($ex_url, $to, 0, strlen($from));
+			}
+		}
 
 		//
 		// See if we can get a result with the internal review, then decide how to respond
