@@ -107,7 +107,7 @@ class Router implements Hiraeth\Routing\Router
 		//
 
 		foreach ($this->masks as $to => $from) {
-			if (strpos($in_url, $from) === 0) {
+			if (strpos($in_url, $from) === 0 && !strpos($in_url, $to) !== 0) {
 				$ex_url = $in_url = substr_replace($in_url, $to, 0, strlen($from));
 			}
 		}
@@ -117,7 +117,7 @@ class Router implements Hiraeth\Routing\Router
 		//
 
 		foreach ($this->masks as $from => $to) {
-			if (strpos($ex_url, $from) === 0) {
+			if (strpos($ex_url, $from) === 0 && strpos($ex_url, $to) !== 0) {
 				$ex_url = substr_replace($ex_url, $to, 0, strlen($from));
 			}
 		}
