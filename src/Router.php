@@ -95,31 +95,41 @@ class Router implements Hiraeth\Routing\Router
 	/**
 	 *
 	 */
+	public function mask(string $url, string $from, string $to): string
+	{
+		if (strpos($url, $from) === 0 && (strpos($to, $from) !== 0 || strpos($url, $to) !== 0)) {
+			$url = substr_replace($url, $to, 0, strlen($from));
+		}
+
+		return $url;
+	}
+
+
+	/**
+	 *
+	 */
 	public function match(Request $request, Response $response): Hiraeth\Routing\Route
 	{
 		$params = array();
 		$method = $request->getMethod();
 		$in_url = $request->getURI()->getPath();
-		$ex_url = $in_url;
 
 		//
 		// We get the internal URL by reversing our known masks.
 		//
 
 		foreach ($this->masks as $to => $from) {
-			if (strpos($in_url, $from) === 0 && !strpos($in_url, $to) !== 0) {
-				$ex_url = $in_url = substr_replace($in_url, $to, 0, strlen($from));
-			}
+			$in_url = $this->mask($in_url, $from, $to);
 		}
 
 		//
-		// We then re-mask the internal URL to determine what the final external URL should be
+		// We then get the external URL by applying our masks to computed internal URL
 		//
 
+		$ex_url = $in_url;
+
 		foreach ($this->masks as $from => $to) {
-			if (strpos($ex_url, $from) === 0 && strpos($ex_url, $to) !== 0) {
-				$ex_url = substr_replace($ex_url, $to, 0, strlen($from));
-			}
+			$ex_url = $this->mask($ex_url, $from, $to);
 		}
 
 		//
