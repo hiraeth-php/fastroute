@@ -42,7 +42,7 @@ class UrlGenerator implements Routing\UrlGenerator
 		}
 
 		foreach ($this->router->getMasks() as $from => $to) {
-			if (strpos($location, $from) === 0 && !strpos($location, $to) !== 0) {
+			if (strpos($location, $from) === 0 && strpos($location, $to) !== 0) {
 				$location = substr_replace($location, $to, 0, strlen($from));
 			}
 		}
