@@ -28,7 +28,7 @@ class UrlGenerator implements Routing\UrlGenerator
 	/**
 	 *
 	 */
-	public function __invoke($location, array $params = array(), ?ParamProvider $provider = NULL): string
+	public function __invoke($location, array $params = array(), ?ParamProvider $provider = NULL, ?bool $mask = TRUE): string
 	{
 		$query   = array();
 		$mapping = array();
@@ -41,8 +41,10 @@ class UrlGenerator implements Routing\UrlGenerator
 			return $this($location->getPathName());
 		}
 
-		foreach ($this->router->getMasks() as $from => $to) {
-			$location = $this->router->mask($location, $from, $to);
+		if ($mask) {
+			foreach ($this->router->getMasks() as $from => $to) {
+				$location = $this->router->mask($location, $from, $to);
+			}
 		}
 
 		if (preg_match_all('/{([^:}]+)(?::([^}]+))?}/', $location, $matches)) {
