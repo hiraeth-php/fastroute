@@ -31,7 +31,8 @@ class UrlGenerator implements Routing\UrlGenerator
 	 */
 	public function __invoke($location, array $params = array(), ?ParamProvider $provider = NULL, ?bool $mask = TRUE): string
 	{
-		$mapping = array();
+		$mapping  = array();
+		$fragment = NULL;
 
 		if ($location instanceof Request) {
 			return $this($location->getUri()->getPath(), $params + $location->getQueryParams());
@@ -39,6 +40,10 @@ class UrlGenerator implements Routing\UrlGenerator
 
 		if ($location instanceof SplFileInfo) {
 			return $this($location->getPathName());
+		}
+
+		if ($fragment = parse_url($location, PHP_URL_FRAGMENT)) {
+			$location = str_replace('#' . $fragment, '', $location);
 		}
 
 		if ($mask) {
@@ -78,7 +83,7 @@ class UrlGenerator implements Routing\UrlGenerator
 			$location .= '?' . preg_replace('/%5B\d+\%5D=/', '%5B%5D=', http_build_query($query));
 		}
 
-		return (string) $location;
+		return (string) $location . rtrim('#' . $fragment, '#');
 	}
 
 
