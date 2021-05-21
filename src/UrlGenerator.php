@@ -34,6 +34,10 @@ class UrlGenerator implements Routing\UrlGenerator
 		$mapping  = array();
 		$fragment = NULL;
 
+		if (!$location) {
+			$location = '';
+		}
+
 		if ($location instanceof Request) {
 			return $this($location->getUri()->getPath(), $params + $location->getQueryParams());
 		}

@@ -95,7 +95,7 @@ class Router implements Hiraeth\Routing\Router
 	/**
 	 *
 	 */
-	public function mask(?string $url, string $from, string $to): ?string
+	public function mask(string $url, string $from, string $to): string
 	{
 		if (strpos($url, $from) === 0 && (strpos($to, $from) !== 0 || strpos($url, $to) !== 0)) {
 			$url = substr_replace($url, $to, 0, strlen($from));
