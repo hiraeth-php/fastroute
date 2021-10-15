@@ -157,7 +157,7 @@ class Router implements Hiraeth\Routing\Router
 			}
 
 		} else {
-			$params  = $result[2];
+			$params  = array_map('urldecode', $result[2]);
 			$target  = $result[1]['target'];
 
 			foreach ($params as $name => $value) {
