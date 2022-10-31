@@ -12,13 +12,13 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class UrlGenerator implements Routing\UrlGenerator
 {
 	/**
-	 *
+	 * @var Router
 	 */
 	protected $router;
 
 
 	/**
-	 *
+	 * @param Router $router
 	 */
 	public function  __construct(Router $router)
 	{
@@ -92,27 +92,24 @@ class UrlGenerator implements Routing\UrlGenerator
 
 
 	/**
-	 *
+	 * @param mixed[] $value The parameters to convert to URL values
+	 * @return mixed[] The string values of the parameters in the URL, null/empty strings stripped
 	 */
 	protected function filter($value)
 	{
-		if (is_array($value)) {
-			foreach ($value as $key => $subvalue) {
-				$value[$key] = $this->filter($subvalue);
+		foreach ($value as $key => $sub_value) {
+			$value[$key] = (string) $sub_value;
+
+			if (!strlen($value[$key])) {
+				$value[$key] = NULL;
 			}
-
-			$value = array_filter($value, function ($value) {
-				return !is_null($value);
-			});
-
-			return count($value)
-				? $value
-				: NULL;
 		}
 
-		$value = (string) $value;
+		$value = array_filter($value, function ($value) {
+			return !is_null($value);
+		});
 
-		return strlen($value)
+		return count($value)
 			? $value
 			: NULL;
 	}

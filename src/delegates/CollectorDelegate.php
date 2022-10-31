@@ -14,11 +14,7 @@ use FastRoute;
 class CollectorDelegate implements Hiraeth\Delegate
 {
 	/**
-	 * Get the class for which the delegate operates.
-	 *
-	 * @static
-	 * @access public
-	 * @return string The class for which the delegate operates
+	 * {@inheritDoc}
 	 */
 	static public function getClass(): string
 	{
@@ -27,11 +23,7 @@ class CollectorDelegate implements Hiraeth\Delegate
 
 
 	/**
-	 * Get the instance of the class for which the delegate operates.
-	 *
-	 * @access public
-	 * @param Hiraeth\Application $app The application instance for which the delegate operates
-	 * @return object The instance of the class for which the delegate operates
+	 * {@inheritDoc}
 	 */
 	public function __invoke(Hiraeth\Application $app): object
 	{
@@ -40,7 +32,7 @@ class CollectorDelegate implements Hiraeth\Delegate
 			$app->get(FastRoute\DataGenerator::class)
 		);
 
-		foreach (array_keys($app->getConfig('*', 'fastroute', array())) as $collection) {
+		foreach (array_keys($app->getAllConfigs('fastroute', array())) as $collection) {
 			$patterns = $app->getConfig($collection, 'fastroute.patterns', array());
 
 			foreach ($patterns as $type => $pattern) {
@@ -48,7 +40,7 @@ class CollectorDelegate implements Hiraeth\Delegate
 			}
 		}
 
-		foreach ($app->getConfig('*', 'routing', array()) as $collection => $config) {
+		foreach ($app->getAllConfigs('routing', array()) as $collection => $config) {
 			$prefix = rtrim($config['prefix'] ?? '/', '/');
 
 			$collector->addGroup($prefix, function($collector) use ($config) {

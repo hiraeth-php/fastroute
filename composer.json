@@ -12,18 +12,17 @@
         }
     ],
     "provide": {
-        "hiraeth/routing-imp": "1.0.0"
+        "hiraeth/routing-imp": "2.0.0"
     },
     "require": {
         "hiraeth/app": "^2.0",
-        "hiraeth/routing": "^1.0",
+        "hiraeth/routing": "^2.0",
         "nikic/fast-route": "^1.3",
-        "doctrine/inflector": "^1.3"
+        "doctrine/inflector": "^2.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^2.15",
-        "phpstan/phpstan": "^0.11.19",
-        "phpunit/phpunit": "^8.2"
+        "phpstan/phpstan": "^1.0",
+	"hiraeth/diactoros": "^2.0"
     },
     "autoload": {
         "classmap": [
@@ -41,6 +40,11 @@
             "hiraeth/app": {
                 "config": ""
             }
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "imarc/opus": true
         }
     }
 }

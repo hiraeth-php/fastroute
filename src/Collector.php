@@ -11,7 +11,7 @@ use FastRoute;
 class Collector extends FastRoute\RouteCollector
 {
 	/**
-	 *
+	 * @var string[]
 	 */
 	static protected $methods = [
 		'GET',
@@ -24,15 +24,16 @@ class Collector extends FastRoute\RouteCollector
 
 
 	/**
-	 *
+	 * @var array<string, string>
 	 */
 	protected $patterns = array();
 
 
 	/**
-	 *
+	 * @param string $type The pattern type
+	 * @param string $pattern A # delimetered regex for pattern matching
 	 */
-	public function addPattern($type, $pattern): Collector
+	public function addPattern(string $type, string $pattern): Collector
 	{
 		if (preg_match('#' . $pattern . '#', '') === FALSE) {
 			throw new RuntimeException(sprintf(
@@ -49,7 +50,9 @@ class Collector extends FastRoute\RouteCollector
 
 
 	/**
-	 *
+	 * @param string[] $methods
+	 * @param string $route
+	 * @param mixed $target
 	 */
 	public function addRoute($methods, $route, $target): Collector
 	{
@@ -92,7 +95,10 @@ class Collector extends FastRoute\RouteCollector
 
 
 	/**
+	 * Add a route for any supported method type
 	 *
+	 * @param string $route
+	 * @param mixed $target
 	 */
 	public function any($route, $target): Collector
 	{

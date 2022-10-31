@@ -7,7 +7,6 @@ use RuntimeException;
 
 use Hiraeth;
 use Hiraeth\Routing;
-
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -17,19 +16,19 @@ use Psr\Http\Message\ResponseInterface as Response;
 class Router implements Hiraeth\Routing\Router
 {
 	/**
-	 *
+	 * @var FastRoute\Dispatcher|null
 	 */
 	protected $dispatcher = NULL;
 
 
 	/**
-	 *
+	 * @var array<string, string>
 	 */
 	protected $masks = array();
 
 
 	/**
-	 *
+	 * @var array<string, Transformer>
 	 */
 	protected $transformers = array();
 
@@ -44,9 +43,10 @@ class Router implements Hiraeth\Routing\Router
 
 
 	/**
-	*
-	*/
-	public function addMask($from, $to): Router
+	 * @param string $from
+	 * @param string $to
+	 */
+	public function addMask(string $from, string $to): Router
 	{
 		$this->masks[$from] = $to;
 
@@ -57,7 +57,7 @@ class Router implements Hiraeth\Routing\Router
 	/**
 	 *
 	 */
-	public function addTransformer($type, Transformer $transformer): Router
+	public function addTransformer(string $type, Transformer $transformer): Router
 	{
 		if (isset($this->transformers[$type])) {
 			throw new RuntimeException(sprintf(
@@ -75,7 +75,7 @@ class Router implements Hiraeth\Routing\Router
 
 
 	/**
-	 *
+	 * @return array<string, string>
 	 */
 	public function getMasks(): array
 	{
@@ -84,7 +84,7 @@ class Router implements Hiraeth\Routing\Router
 
 
 	/**
-	 *
+	 * @return array<string, Transformer>
 	 */
 	public function getTransformers(): array
 	{

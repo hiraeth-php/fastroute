@@ -2,7 +2,7 @@
 
 namespace Hiraeth\FastRoute;
 
-use Doctrine\Common\Inflector\Inflector;
+use Doctrine\Inflector\Inflector;
 
 /**
  *
@@ -10,7 +10,7 @@ use Doctrine\Common\Inflector\Inflector;
 class StringTransformer implements Transformer
 {
 	/**
-	 *
+	 * @var Inflector|null
 	 */
 	protected $inflector = NULL;
 
@@ -25,7 +25,7 @@ class StringTransformer implements Transformer
 
 
 	/**
-	 *
+	 * {@inheritDoc}
 	 */
 	public function fromUrl($name, $value, array $context = array())
 	{
@@ -34,7 +34,7 @@ class StringTransformer implements Transformer
 
 
 	/**
-	 *
+	 * {@inheritDoc}
 	 */
 	public function toUrl($name, $value, array $context = array()): string
 	{
@@ -49,9 +49,12 @@ class StringTransformer implements Transformer
 
 
 	/**
+	 * Convert acronyms to otherwise convertable text
 	 *
+	 * @param string[] $results
+	 * @return string
 	 */
-	protected function acronymToTitle($results)
+	protected function acronymToTitle($results): string
 	{
 		return ucfirst(strtolower($results[0]));
 	}
