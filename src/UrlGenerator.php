@@ -57,7 +57,7 @@ class UrlGenerator implements Routing\UrlGenerator
 		}
 
 		if (preg_match_all('/{([^:}]+)(?::([^}]+))?}/', $location, $matches)) {
-			$mapping = array_combine($matches[1], $matches[2]);
+			$mapping = array_combine($matches[1], $matches[2]) ?: array();
 		}
 
 		if ($provider) {
