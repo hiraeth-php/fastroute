@@ -97,10 +97,15 @@ class UrlGenerator implements Routing\UrlGenerator
 	 */
 	protected function filter($value)
 	{
-		foreach ($value as $key => $sub_value) {
-			$value[$key] = (string) $sub_value;
 
-			if (!strlen($value[$key])) {
+		foreach ($value as $key => $sub_value) {
+			if (is_array($sub_value)) {
+				$value[$key] = $this->filter($sub_value);
+			} else {
+				$value[$key] = trim((string) $sub_value);
+			}
+
+			if (!$value[$key]) {
 				$value[$key] = NULL;
 			}
 		}
