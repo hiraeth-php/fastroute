@@ -4,6 +4,7 @@ namespace Hiraeth\FastRoute;
 
 use SplFileInfo;
 use Hiraeth\Routing;
+use Hiraeth\Routing\Route;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
@@ -46,6 +47,23 @@ class UrlGenerator implements Routing\UrlGenerator
 			return $this($location->getPathName());
 		}
 
+		if ($location instanceof Route) {
+			$provider = new class($location->getParameters()) implements ParamProvider
+			{
+				public function __construct($params)
+				{
+					$this->params = $params;
+				}
+
+				public function getRouteParameter($name)
+				{
+					return $this->params[$name] ?? NULL;
+				}
+			};
+
+			return $this($location->getTarget(), array(), $provider);
+		}
+
 		if ($fragment = parse_url($location, PHP_URL_FRAGMENT)) {
 			$location = str_replace('#' . $fragment, '', $location);
 		}
@@ -83,8 +101,16 @@ class UrlGenerator implements Routing\UrlGenerator
 			unset($params[$name]);
 		}
 
-		if ($query = $this->filter($params)) {
-			$location .= '?' . preg_replace('/%5B\d+\%5D=/', '%5B%5D=', http_build_query($query));
+		if (!parse_url($location, PHP_URL_QUERY)) {
+			$leftover = $this->filter($params);
+
+			if ($leftover) {
+				$location = sprintf(
+					'%s?%s',
+					$location,
+					preg_replace('/%5B\d+\%5D=/', '%5B%5D=', http_build_query($leftover))
+				);
+			}
 		}
 
 		return (string) $location . rtrim('#' . $fragment, '#');
