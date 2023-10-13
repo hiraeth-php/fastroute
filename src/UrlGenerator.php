@@ -50,6 +50,8 @@ class UrlGenerator implements Routing\UrlGenerator
 		if ($location instanceof Route) {
 			$provider = new class($location->getParameters()) implements ParamProvider
 			{
+				protected $params = array();
+
 				public function __construct($params)
 				{
 					$this->params = $params;
