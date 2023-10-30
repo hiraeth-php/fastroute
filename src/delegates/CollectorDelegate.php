@@ -33,10 +33,21 @@ class CollectorDelegate implements Hiraeth\Delegate
 		);
 
 		foreach (array_keys($app->getAllConfigs('fastroute', array())) as $collection) {
-			$patterns = $app->getConfig($collection, 'fastroute.patterns', array());
+			$transformers = $app->getConfig($collection, 'fastroute.transformers', array());
+			$patterns     = $app->getConfig($collection, 'fastroute.patterns', array());
+			$masks        = $app->getConfig($collection, 'fastroute.masks', array());
+
+
+			foreach ($transformers as $type => $transformer) {
+				$collector->addTransformer($type, $app->get($transformer));
+			}
 
 			foreach ($patterns as $type => $pattern) {
 				$collector->addPattern($type, $pattern);
+			}
+
+			foreach ($masks as $from => $to) {
+				$collector->addMask($from, $to);
 			}
 		}
 
@@ -50,6 +61,6 @@ class CollectorDelegate implements Hiraeth\Delegate
 			});
 		}
 
-		return $collector;
+		return $app->share($collector);
 	}
 }

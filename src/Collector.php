@@ -22,11 +22,32 @@ class Collector extends FastRoute\RouteCollector
 		'HEAD',
 	];
 
+	/**
+	 * @var array<string, string>
+	 */
+	protected $masks = array();
 
 	/**
 	 * @var array<string, string>
 	 */
 	protected $patterns = array();
+
+	/**
+	 * @var array<string, Transformer>
+	 */
+	protected $transformers = array();
+
+
+	/**
+	 * @param string $from
+	 * @param string $to
+	 */
+	public function addMask(string $from, string $to): Collector
+	{
+		$this->masks[$from] = $to;
+
+		return $this;
+	}
 
 
 	/**
@@ -95,15 +116,61 @@ class Collector extends FastRoute\RouteCollector
 
 
 	/**
-	 * Add a route for any supported method type
 	 *
-	 * @param string $route
-	 * @param mixed $target
 	 */
-	public function any($route, $target): Collector
+	public function addTransformer(string $type, Transformer $transformer): Collector
 	{
-		$this->addRoute(static::$methods, $route, $target);
+		if (isset($this->transformers[$type])) {
+			throw new RuntimeException(sprintf(
+				'Transformer %s is already registered.  Cannot register %s for type "%s"',
+				get_class($this->transformers[$type]),
+				get_class($transformer),
+				$type
+			));
+		}
+
+		$this->transformers[$type] = $transformer;
 
 		return $this;
+	}
+
+
+	/**
+	 * @return array<string, string>
+	 */
+	public function getMasks(): array
+	{
+		return $this->masks;
+	}
+
+
+	/**
+	 * @return array<string, string>
+	 */
+	public function getPatterns(): array
+	{
+		return $this->patterns;
+	}
+
+
+	/**
+	 * @return array<string, Transformer>
+	 */
+	public function getTransformers(): array
+	{
+		return $this->transformers;
+	}
+
+
+	/**
+	 *
+	 */
+	public function mask(string $url, string $from, string $to): string
+	{
+		if (strpos($url, $from) === 0 && (strpos($to, $from) !== 0 || strpos($url, $to) !== 0)) {
+			$url = substr_replace($url, $to, 0, strlen($from));
+		}
+
+		return $url;
 	}
 }

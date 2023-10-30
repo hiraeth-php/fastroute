@@ -13,17 +13,17 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class UrlGenerator implements Routing\UrlGenerator
 {
 	/**
-	 * @var Router
+	 * @var Collector
 	 */
-	protected $router;
+	protected $collector;
 
 
 	/**
 	 * @param Router $router
 	 */
-	public function  __construct(Router $router)
+	public function  __construct(Collector $collector)
 	{
-		$this->router = $router;
+		$this->collector = $collector;
 	}
 
 
@@ -32,38 +32,21 @@ class UrlGenerator implements Routing\UrlGenerator
 	 */
 	public function __invoke($location, array $params = array(), ?ParamProvider $provider = NULL, ?bool $mask = TRUE): string
 	{
-		$mapping  = array();
-		$fragment = NULL;
-
-		if (!$location) {
-			$location = '';
-		}
-
 		if ($location instanceof Request) {
-			return $this($location->getUri()->getPath(), $params + $location->getQueryParams());
+			$params = $params + $location->getQueryParams();
+
+			return $this->make($location->getUri()->getPath(), $params);
 		}
 
 		if ($location instanceof SplFileInfo) {
-			return $this($location->getPathName());
+			return $this->make($location->getPathName());
 		}
 
-		if ($location instanceof Route) {
-			$provider = new class($location->getParameters()) implements ParamProvider
-			{
-				protected $params = array();
+		$fragment = NULL;
+		$mapping  = $this->link($location, $params);
 
-				public function __construct($params)
-				{
-					$this->params = $params;
-				}
-
-				public function getRouteParameter($name)
-				{
-					return $this->params[$name] ?? NULL;
-				}
-			};
-
-			return $this($location->getTarget(), array(), $provider);
+		if (!$location) {
+			$location = '';
 		}
 
 		if ($fragment = parse_url($location, PHP_URL_FRAGMENT)) {
@@ -71,36 +54,15 @@ class UrlGenerator implements Routing\UrlGenerator
 		}
 
 		if ($mask) {
-			foreach ($this->router->getMasks() as $from => $to) {
-				$location = $this->router->mask($location, $from, $to);
+			foreach ($this->collector->getMasks() as $from => $to) {
+				$location = $this->collector->mask($location, $from, $to);
 			}
-		}
-
-		if (preg_match_all('/{([^:}]+)(?::([^}]+))?}/', $location, $matches)) {
-			$mapping = array_combine($matches[1], $matches[2]) ?: array();
 		}
 
 		if ($provider) {
 			foreach (array_diff(array_keys($mapping), array_keys($params)) as $name) {
 				$params[$name] = $provider->getRouteParameter($name);
 			}
-		}
-
-		foreach (array_intersect(array_keys($mapping), array_keys($params)) as $name) {
-			$type  = $mapping[$name];
-			$value = $params[$name];
-
-			if (isset($this->router->getTransformers()[$type])) {
-				$value = $this->router->getTransformers()[$type]->toUrl($name, $value, $params);
-			}
-
-			$location = str_replace(
-				$type ? '{' . $name . ':' . $type . '}' : '{' . $name . '}',
-				urlencode($value),
-				$location
-			);
-
-			unset($params[$name]);
 		}
 
 		if (!parse_url($location, PHP_URL_QUERY)) {
@@ -116,6 +78,47 @@ class UrlGenerator implements Routing\UrlGenerator
 		}
 
 		return (string) $location . rtrim('#' . $fragment, '#');
+	}
+
+
+	/**
+	 *
+	 */
+	public function call(): string
+	{
+		return $this(...func_get_args());
+	}
+
+
+	/**
+	 *
+	 */
+	public function link(string &$location, array &$params = array())
+	{
+		$mapping = array();
+
+		if (preg_match_all('/{([^:}]+)(?::([^}]+))?}/', $location, $matches)) {
+			$mapping = array_combine($matches[1], $matches[2]) ?: array();
+		}
+
+		foreach (array_intersect(array_keys($mapping), array_keys($params)) as $name) {
+			$type  = $mapping[$name];
+			$value = $params[$name];
+
+			if (isset($this->collector->getTransformers()[$type])) {
+				$value = $this->collector->getTransformers()[$type]->toUrl($name, $value, $params);
+			}
+
+			$location = str_replace(
+				$type ? '{' . $name . ':' . $type . '}' : '{' . $name . '}',
+				urlencode($value),
+				$location
+			);
+
+			unset($params[$name]);
+		}
+
+		return $mapping;
 	}
 
 

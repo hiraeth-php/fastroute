@@ -16,92 +16,29 @@ use Psr\Http\Message\ResponseInterface as Response;
 class Router implements Hiraeth\Routing\Router
 {
 	/**
+	 * @var Collector
+	 */
+	protected $collector;
+
+	/**
 	 * @var FastRoute\Dispatcher|null
 	 */
-	protected $dispatcher = NULL;
-
-
-	/**
-	 * @var array<string, string>
-	 */
-	protected $masks = array();
-
+	protected $dispatcher;
 
 	/**
-	 * @var array<string, Transformer>
+	 * @var UrlGenerator
 	 */
-	protected $transformers = array();
+	protected $generator;
 
 
 	/**
 	 *
 	 */
-	public function __construct(FastRoute\Dispatcher $dispatcher)
+	public function __construct(Collector $collector, FastRoute\Dispatcher $dispatcher, UrlGenerator $generator)
 	{
+		$this->collector  = $collector;
 		$this->dispatcher = $dispatcher;
-	}
-
-
-	/**
-	 * @param string $from
-	 * @param string $to
-	 */
-	public function addMask(string $from, string $to): Router
-	{
-		$this->masks[$from] = $to;
-
-		return $this;
-	}
-
-
-	/**
-	 *
-	 */
-	public function addTransformer(string $type, Transformer $transformer): Router
-	{
-		if (isset($this->transformers[$type])) {
-			throw new RuntimeException(sprintf(
-				'Transformer %s is already registered.  Cannot register %s for type "%s"',
-				get_class($this->transformers[$type]),
-				get_class($transformer),
-				$type
-			));
-		}
-
-		$this->transformers[$type] = $transformer;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return array<string, string>
-	 */
-	public function getMasks(): array
-	{
-		return $this->masks;
-	}
-
-
-	/**
-	 * @return array<string, Transformer>
-	 */
-	public function getTransformers(): array
-	{
-		return $this->transformers;
-	}
-
-
-	/**
-	 *
-	 */
-	public function mask(string $url, string $from, string $to): string
-	{
-		if (strpos($url, $from) === 0 && (strpos($to, $from) !== 0 || strpos($url, $to) !== 0)) {
-			$url = substr_replace($url, $to, 0, strlen($from));
-		}
-
-		return $url;
+		$this->generator  = $generator;
 	}
 
 
@@ -118,8 +55,8 @@ class Router implements Hiraeth\Routing\Router
 		// We get the internal URL by reversing our known masks.
 		//
 
-		foreach ($this->masks as $to => $from) {
-			$in_url = $this->mask($in_url, $from, $to);
+		foreach ($this->collector->getMasks() as $to => $from) {
+			$in_url = $this->collector->mask($in_url, $from, $to);
 		}
 
 		//
@@ -128,8 +65,8 @@ class Router implements Hiraeth\Routing\Router
 
 		$ex_url = $in_url;
 
-		foreach ($this->masks as $from => $to) {
-			$ex_url = $this->mask($ex_url, $from, $to);
+		foreach ($this->collector->getMasks() as $from => $to) {
+			$ex_url = $this->collector->mask($ex_url, $from, $to);
 		}
 
 		//
@@ -163,12 +100,19 @@ class Router implements Hiraeth\Routing\Router
 			foreach ($params as $name => $value) {
 				$type = $result[1]['mapping'][$name] ?? NULL;
 
-				if (!isset($this->transformers[$type])) {
+				if (!isset($this->collector->getTransformers()[$type])) {
 					continue;
 				}
 
-				$params[$name] = $this->transformers[$type]->fromUrl($name, $value, $result[2]);
+				$params[$name] = $this->collector
+					->getTransformers()[$type]
+					->fromUrl($name, $value, $result[2])
+				;
 			}
+		}
+
+		if (is_string($target)) {
+			$this->generator->link($target, $params);
 		}
 
 		return new Routing\Route($target, $params);

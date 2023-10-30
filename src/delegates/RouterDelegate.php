@@ -27,21 +27,12 @@ class RouterDelegate implements Hiraeth\Delegate
 	 */
 	public function __invoke(Hiraeth\Application $app): object
 	{
-		$router = new Router($app->get(FastRoute\Dispatcher::class));
+		$router = new Router(
+			$app->get(Collector::class),
+			$app->get(FastRoute\Dispatcher::class),
+			$app->get(UrlGenerator::class)
+		);
 
-		foreach (array_keys($app->getAllConfigs('fastroute', array())) as $collection) {
-			$transformers = $app->getConfig($collection, 'fastroute.transformers', array());
-			$masks        = $app->getConfig($collection, 'fastroute.masks', array());
-
-			foreach ($transformers as $type => $transformer) {
-				$router->addTransformer($type, $app->get($transformer));
-			}
-
-			foreach ($masks as $from => $to) {
-				$router->addMask($from, $to);
-			}
-		}
-
-		return $app->share($router);
+		return $router;
 	}
 }
