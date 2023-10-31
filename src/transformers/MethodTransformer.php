@@ -29,7 +29,7 @@ class MethodTransformer implements Transformer
 	 */
 	public function fromUrl($name, $value, array $context = array())
 	{
-		return $this->inflector->classify($value);
+		return lcfirst($this->inflector->camelize($value));
 	}
 
 
@@ -38,6 +38,6 @@ class MethodTransformer implements Transformer
 	 */
 	public function toUrl($name, $value, array $context = array()): string
 	{
-		return str_replace('_', '-', $this->inflector->tableize($value));
+		return strtolower(str_replace('_', '-', $this->inflector->tableize($value)));
 	}
 }

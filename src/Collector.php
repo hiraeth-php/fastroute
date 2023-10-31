@@ -182,7 +182,7 @@ class Collector extends FastRoute\RouteCollector
 				$value = $this->getTransformers()[$type]->toUrl($name, $value, $params);
 			}
 
-			$location = str_replace(
+			$url = str_replace(
 				$type ? '{' . $name . ':' . $type . '}' : '{' . $name . '}',
 				$encode ? urlencode($value) : $value,
 				$url
