@@ -2,13 +2,12 @@
 
 namespace Hiraeth\FastRoute;
 
-use FastRoute;
-use RuntimeException;
-
 use Hiraeth;
+use FastRoute;
 use Hiraeth\Routing;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use RuntimeException;
 
 /*
  *
@@ -21,7 +20,7 @@ class Router implements Hiraeth\Routing\Router
 	protected $collector;
 
 	/**
-	 * @var FastRoute\Dispatcher|null
+	 * @var FastRoute\Dispatcher
 	 */
 	protected $dispatcher;
 
@@ -109,10 +108,13 @@ class Router implements Hiraeth\Routing\Router
 					->fromUrl($name, $value, $result[2])
 				;
 			}
-		}
 
-		if (is_string($target)) {
-			$this->generator->link($target, $params);
+			if ($this->collector->link($target, $params, FALSE, FALSE)) {
+				throw new RuntimeException(sprintf(
+					'Target "%s" has unresolved parameters',
+					$target
+				));
+			}
 		}
 
 		return new Routing\Route($target, $params);

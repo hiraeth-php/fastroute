@@ -163,6 +163,40 @@ class Collector extends FastRoute\RouteCollector
 
 
 	/**
+	 * @param array<string, mixed> $params
+	 * @return array<string, mixed>
+	 */
+	public function link(string &$url, array &$params = array(), bool $transform = TRUE, bool $encode = TRUE): array
+	{
+		$mapping = array();
+
+		if (preg_match_all('/{([^:}]+)(?::([^}]+))?}/', $url, $matches)) {
+			$mapping = array_combine($matches[1], $matches[2]) ?: array();
+		}
+
+		foreach (array_intersect(array_keys($mapping), array_keys($params)) as $name) {
+			$type  = $mapping[$name];
+			$value = $params[$name];
+
+			if ($transform && isset($this->getTransformers()[$type])) {
+				$value = $this->getTransformers()[$type]->toUrl($name, $value, $params);
+			}
+
+			$location = str_replace(
+				$type ? '{' . $name . ':' . $type . '}' : '{' . $name . '}',
+				$encode ? urlencode($value) : $value,
+				$url
+			);
+
+			unset($params[$name]);
+			unset($mapping[$name]);
+		}
+
+		return $mapping;
+	}
+
+
+	/**
 	 *
 	 */
 	public function mask(string $url, string $from, string $to): string

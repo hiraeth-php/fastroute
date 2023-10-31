@@ -6,6 +6,7 @@ use SplFileInfo;
 use Hiraeth\Routing;
 use Hiraeth\Routing\Route;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use RuntimeException;
 
 /**
  *
@@ -19,7 +20,7 @@ class UrlGenerator implements Routing\UrlGenerator
 
 
 	/**
-	 * @param Router $router
+	 * @param Collector $collector
 	 */
 	public function  __construct(Collector $collector)
 	{
@@ -35,21 +36,21 @@ class UrlGenerator implements Routing\UrlGenerator
 		if ($location instanceof Request) {
 			$params = $params + $location->getQueryParams();
 
-			return $this->make($location->getUri()->getPath(), $params);
+			return $this->call($location->getUri()->getPath(), $params);
 		}
 
 		if ($location instanceof SplFileInfo) {
-			return $this->make($location->getPathName());
+			return $this->call($location->getPathName());
 		}
 
-		$fragment = NULL;
-		$mapping  = $this->link($location, $params);
+		$fragment = parse_url($location, PHP_URL_FRAGMENT);
+		$mapping  = $this->collector->link($location, $params);
 
 		if (!$location) {
 			$location = '';
 		}
 
-		if ($fragment = parse_url($location, PHP_URL_FRAGMENT)) {
+		if ($fragment) {
 			$location = str_replace('#' . $fragment, '', $location);
 		}
 
@@ -62,6 +63,17 @@ class UrlGenerator implements Routing\UrlGenerator
 		if ($provider) {
 			foreach (array_diff(array_keys($mapping), array_keys($params)) as $name) {
 				$params[$name] = $provider->getRouteParameter($name);
+			}
+
+			if ($mapping) {
+				$mapping = $this->collector->link($location, $params);
+			}
+
+			if ($mapping) {
+				throw new RuntimeException(sprintf(
+					'Location "%s" has unresolved parameters',
+					$location
+				));
 			}
 		}
 
@@ -87,38 +99,6 @@ class UrlGenerator implements Routing\UrlGenerator
 	public function call(): string
 	{
 		return $this(...func_get_args());
-	}
-
-
-	/**
-	 *
-	 */
-	public function link(string &$location, array &$params = array())
-	{
-		$mapping = array();
-
-		if (preg_match_all('/{([^:}]+)(?::([^}]+))?}/', $location, $matches)) {
-			$mapping = array_combine($matches[1], $matches[2]) ?: array();
-		}
-
-		foreach (array_intersect(array_keys($mapping), array_keys($params)) as $name) {
-			$type  = $mapping[$name];
-			$value = $params[$name];
-
-			if (isset($this->collector->getTransformers()[$type])) {
-				$value = $this->collector->getTransformers()[$type]->toUrl($name, $value, $params);
-			}
-
-			$location = str_replace(
-				$type ? '{' . $name . ':' . $type . '}' : '{' . $name . '}',
-				urlencode($value),
-				$location
-			);
-
-			unset($params[$name]);
-		}
-
-		return $mapping;
 	}
 
 
