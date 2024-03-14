@@ -22,7 +22,7 @@
     },
     "require-dev": {
         "phpstan/phpstan": "^1.0",
-	"hiraeth/diactoros": "^2.0"
+        "hiraeth/diactoros": "^2.0"
     },
     "autoload": {
         "classmap": [
