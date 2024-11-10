@@ -3,15 +3,14 @@
 namespace Hiraeth\FastRoute;
 
 use SplFileInfo;
-use Hiraeth\Routing;
-use Hiraeth\Routing\Route;
+use Hiraeth\Http;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use RuntimeException;
 
 /**
  *
  */
-class UrlGenerator implements Routing\UrlGenerator
+class UrlGenerator implements Http\UrlGenerator
 {
 	/**
 	 * @var Collector
@@ -29,7 +28,8 @@ class UrlGenerator implements Routing\UrlGenerator
 
 
 	/**
-	 *
+	 * @param Request|SplFileInfo|string $location
+	 * @param array<mixed> $params
 	 */
 	public function __invoke($location, array $params = array(), ?ParamProvider $provider = NULL, ?bool $mask = TRUE): string
 	{

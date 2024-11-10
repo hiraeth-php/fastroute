@@ -8,7 +8,7 @@
 
 	aliases = {
 		"Hiraeth\Routing\Router": "Hiraeth\FastRoute\Router",
-		"Hiraeth\Routing\UrlGenerator": "Hiraeth\FastRoute\UrlGenerator",
+		"Hiraeth\Http\UrlGenerator": "Hiraeth\FastRoute\UrlGenerator",
 
 		"FastRoute\RouteParser": "FastRoute\RouteParser\Std",
 		"FastRoute\DataGenerator": "FastRoute\DataGenerator\GroupCountBased",
