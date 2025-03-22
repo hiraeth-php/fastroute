@@ -30,7 +30,7 @@ class RouterDelegate implements Hiraeth\Delegate
 		$router = new Router(
 			$app->get(Collector::class),
 			$app->get(FastRoute\Dispatcher::class),
-			$app->get(UrlGenerator::class)
+			$app->get(Hiraeth\Http\UrlGenerator::class)
 		);
 
 		return $router;

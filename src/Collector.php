@@ -25,17 +25,17 @@ class Collector extends FastRoute\RouteCollector
 	/**
 	 * @var array<string, string>
 	 */
-	protected $masks = array();
+	protected $masks = [];
 
 	/**
 	 * @var array<string, string>
 	 */
-	protected $patterns = array();
+	protected $patterns = [];
 
 	/**
 	 * @var array<string, Transformer>
 	 */
-	protected $transformers = array();
+	protected $transformers = [];
 
 
 	/**
@@ -77,7 +77,7 @@ class Collector extends FastRoute\RouteCollector
 	 */
 	public function addRoute($methods, $route, $target): Collector
 	{
-		$params  = array();
+		$params  = [];
 		$pattern = $route;
 
 		if (in_array('*', $methods)) {
@@ -123,8 +123,8 @@ class Collector extends FastRoute\RouteCollector
 		if (isset($this->transformers[$type])) {
 			throw new RuntimeException(sprintf(
 				'Transformer %s is already registered.  Cannot register %s for type "%s"',
-				get_class($this->transformers[$type]),
-				get_class($transformer),
+				$this->transformers[$type]::class,
+				$transformer::class,
 				$type
 			));
 		}
@@ -166,12 +166,12 @@ class Collector extends FastRoute\RouteCollector
 	 * @param array<string, mixed> $params
 	 * @return array<string, mixed>
 	 */
-	public function link(string &$url, array &$params = array(), bool $transform = TRUE, bool $encode = TRUE): array
+	public function link(string &$url, array &$params = [], bool $transform = TRUE, bool $encode = TRUE): array
 	{
-		$mapping = array();
+		$mapping = [];
 
 		if (preg_match_all('/{([^:}]+)(?::([^}]+))?}/', $url, $matches)) {
-			$mapping = array_combine($matches[1], $matches[2]) ?: array();
+			$mapping = array_combine($matches[1], $matches[2]) ?: [];
 		}
 
 		foreach (array_intersect(array_keys($mapping), array_keys($params)) as $name) {
@@ -184,7 +184,7 @@ class Collector extends FastRoute\RouteCollector
 
 			$url = str_replace(
 				$type ? '{' . $name . ':' . $type . '}' : '{' . $name . '}',
-				$encode ? urlencode($value) : $value,
+				$encode ? urlencode((string) $value) : $value,
 				$url
 			);
 
@@ -201,7 +201,7 @@ class Collector extends FastRoute\RouteCollector
 	 */
 	public function mask(string $url, string $from, string $to): string
 	{
-		if (strpos($url, $from) === 0 && (strpos($to, $from) !== 0 || strpos($url, $to) !== 0)) {
+		if (str_starts_with($url, $from) && (!str_starts_with($to, $from) || !str_starts_with($url, $to))) {
 			$url = substr_replace($url, $to, 0, strlen($from));
 		}
 

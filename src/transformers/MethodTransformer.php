@@ -27,16 +27,16 @@ class MethodTransformer implements Transformer
 	/**
 	 * {@inheritDoc}
 	 */
-	public function fromUrl($name, $value, array $context = array())
+	public function fromUrl($name, $value, array $context = [])
 	{
-		return lcfirst($this->inflector->camelize($value));
+		return lcfirst((string) $this->inflector->camelize($value));
 	}
 
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function toUrl($name, $value, array $context = array()): string
+	public function toUrl($name, $value, array $context = []): string
 	{
 		return strtolower(str_replace('_', '-', $this->inflector->tableize($value)));
 	}

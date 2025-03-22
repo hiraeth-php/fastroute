@@ -32,10 +32,10 @@ class CollectorDelegate implements Hiraeth\Delegate
 			$app->get(FastRoute\DataGenerator::class)
 		);
 
-		foreach (array_keys($app->getAllConfigs('fastroute', array())) as $collection) {
-			$transformers = $app->getConfig($collection, 'fastroute.transformers', array());
-			$patterns     = $app->getConfig($collection, 'fastroute.patterns', array());
-			$masks        = $app->getConfig($collection, 'fastroute.masks', array());
+		foreach (array_keys($app->getAllConfigs('fastroute', [])) as $collection) {
+			$transformers = $app->getConfig($collection, 'fastroute.transformers', []);
+			$patterns     = $app->getConfig($collection, 'fastroute.patterns', []);
+			$masks        = $app->getConfig($collection, 'fastroute.masks', []);
 
 
 			foreach ($transformers as $type => $transformer) {
@@ -51,11 +51,11 @@ class CollectorDelegate implements Hiraeth\Delegate
 			}
 		}
 
-		foreach ($app->getAllConfigs('routing', array()) as $collection => $config) {
+		foreach ($app->getAllConfigs('routing', []) as $config) {
 			$prefix = rtrim($config['prefix'] ?? '/', '/');
 
-			$collector->addGroup($prefix, function($collector) use ($config) {
-				foreach ($config['routes'] ?? array() as $route) {
+			$collector->addGroup($prefix, function($collector) use ($config): void {
+				foreach ($config['routes'] ?? [] as $route) {
 					$collector->addRoute($route['methods'], $route['route'], $route['target']);
 				}
 			});

@@ -32,7 +32,7 @@ class GCBDispatcherDelegate implements Hiraeth\Delegate
 		$cache_file = $app->getConfig(
 			'packages/fastroute',
 			'fastroute.cache_file',
-			sprintf('storage/cache/%s.routes', md5(__CLASS__))
+			sprintf('storage/cache/%s.routes', md5(self::class))
 		);
 
 		if ($caching && $app->hasFile($cache_file)) {

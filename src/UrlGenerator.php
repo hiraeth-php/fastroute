@@ -31,10 +31,10 @@ class UrlGenerator implements Http\UrlGenerator
 	 * @param Request|SplFileInfo|string $location
 	 * @param array<mixed> $params
 	 */
-	public function __invoke($location, array $params = array(), ?ParamProvider $provider = NULL, ?bool $mask = TRUE): string
+	public function __invoke($location, array $params = [], ?ParamProvider $provider = NULL, ?bool $mask = TRUE): string
 	{
 		if ($location instanceof Request) {
-			$params = $params + $location->getQueryParams();
+			$params += $location->getQueryParams();
 
 			return $this->call($location->getUri()->getPath(), $params);
 		}
@@ -126,9 +126,7 @@ class UrlGenerator implements Http\UrlGenerator
 			}
 		}
 
-		$value = array_filter($value, function ($value) {
-			return !is_null($value);
-		});
+		$value = array_filter($value, fn($value) => !is_null($value));
 
 		return count($value)
 			? $value

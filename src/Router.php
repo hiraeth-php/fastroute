@@ -33,7 +33,7 @@ class Router implements Hiraeth\Routing\Router
 	/**
 	 *
 	 */
-	public function __construct(Collector $collector, FastRoute\Dispatcher $dispatcher, UrlGenerator $generator)
+	public function __construct(Collector $collector, FastRoute\Dispatcher $dispatcher, Hiraeth\Http\UrlGenerator $generator)
 	{
 		$this->collector  = $collector;
 		$this->dispatcher = $dispatcher;
@@ -46,7 +46,7 @@ class Router implements Hiraeth\Routing\Router
 	 */
 	public function match(Request $request, Response $response): Hiraeth\Routing\Route
 	{
-		$params = array();
+		$params = [];
 		$method = $request->getMethod();
 		$in_url = $request->getURI()->getPath();
 
@@ -79,11 +79,11 @@ class Router implements Hiraeth\Routing\Router
 			$target = $response->withStatus(301)->withHeader('Location', $ex_url);
 
 		} elseif ($result[0] == $this->dispatcher::METHOD_NOT_ALLOWED) {
-			$target = $response->withHeader('Allowed', join(',', $result[1]))->withStatus(405);
+			$target = $response->withHeader('Allowed', implode(',', $result[1]))->withStatus(405);
 
 		} elseif ($result[0] == $this->dispatcher::NOT_FOUND) {
-			$alt_url = substr($in_url, -1) == '/'
-				? substr($in_url, 0, -1)
+			$alt_url = str_ends_with((string) $in_url, '/')
+				? substr((string) $in_url, 0, -1)
 				: $in_url . '/';
 
 			if ($this->dispatcher->dispatch($method, $alt_url)[0] != $this->dispatcher::NOT_FOUND) {

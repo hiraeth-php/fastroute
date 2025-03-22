@@ -27,16 +27,16 @@ class ClassTransformer implements Transformer
 	/**
 	 * {@inheritDoc}
 	 */
-	public function fromUrl($name, $value, array $context = array())
+	public function fromUrl($name, $value, array $context = [])
 	{
-		return ucfirst($this->inflector->camelize($value));
+		return ucfirst((string) $this->inflector->camelize($value));
 	}
 
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function toUrl($name, $value, array $context = array()): string
+	public function toUrl($name, $value, array $context = []): string
 	{
 		return strtolower(str_replace('_', '-', $this->inflector->tableize($value)));
 	}

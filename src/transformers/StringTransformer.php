@@ -27,7 +27,7 @@ class StringTransformer implements Transformer
 	/**
 	 * {@inheritDoc}
 	 */
-	public function fromUrl($name, $value, array $context = array())
+	public function fromUrl($name, $value, array $context = [])
 	{
 		return $value;
 	}
@@ -36,9 +36,9 @@ class StringTransformer implements Transformer
 	/**
 	 * {@inheritDoc}
 	 */
-	public function toUrl($name, $value, array $context = array()): string
+	public function toUrl($name, $value, array $context = []): string
 	{
-		$value = preg_replace_callback('#\b[A-Z]+\b#', [$this, 'acronymToTitle'], $value);
+		$value = preg_replace_callback('#\b[A-Z]+\b#', [$this, 'acronymToTitle'], (string) $value);
 		$value = str_replace('_', '-', $this->inflector->tableize($value));
 		$value = preg_replace('/[\/]/', '', $value);
 		$value = preg_replace('/[^A-Z^a-z^0-9]+/', '-', $value);

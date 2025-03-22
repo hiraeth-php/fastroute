@@ -16,7 +16,7 @@ interface Transformer
 	 * @param mixed[] $context Additional context (other parameter values, enviornment, etc)
 	 * @return mixed
 	 */
-	public function fromUrl(string $name, string $value, array $context = array());
+	public function fromUrl(string $name, string $value, array $context = []);
 
 
 	/**
@@ -28,5 +28,5 @@ interface Transformer
 	 * @param mixed[] $context Additional context (other parameter values, enviornment, etc)
 	 * @return string
 	 */
-	public function toUrl(string $name, $value, array $context = array()): string;
+	public function toUrl(string $name, $value, array $context = []): string;
 }
