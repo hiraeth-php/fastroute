@@ -3,9 +3,10 @@
 namespace Hiraeth\FastRoute;
 
 use SplFileInfo;
-use Hiraeth\Http;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use RuntimeException;
+
+use Psr\Http\Message\ServerRequestInterface;
+use Hiraeth\Http;
 
 /**
  *
@@ -33,7 +34,7 @@ class UrlGenerator implements Http\UrlGenerator
 	 */
 	public function __invoke($location, array $params = [], ?ParamProvider $provider = NULL, ?bool $mask = TRUE): string
 	{
-		if ($location instanceof Request) {
+		if ($location instanceof ServerRequestInterface) {
 			$params += $location->getQueryParams();
 
 			return $this->call($location->getUri()->getPath(), $params);
