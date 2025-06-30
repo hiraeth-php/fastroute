@@ -82,9 +82,9 @@ class Router implements Hiraeth\Routing\Router
 			$target = $response->withHeader('Allowed', implode(',', $result[1]))->withStatus(405);
 
 		} elseif ($result[0] == $this->dispatcher::NOT_FOUND) {
-			$alt_url = str_ends_with((string) $in_url, '/')
+			$alt_url = $this->generator->call(str_ends_with((string) $in_url, '/')
 				? substr((string) $in_url, 0, -1)
-				: $in_url . '/';
+				: $in_url . '/');
 
 			if ($this->dispatcher->dispatch($method, $alt_url)[0] != $this->dispatcher::NOT_FOUND) {
 				$target = $response->withStatus(301)->withHeader('Location', $alt_url);
